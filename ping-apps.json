@@ -1,0 +1,34 @@
+[
+    {
+        "name": "TimeInProgress-website-client",
+        "slug": "timeinprogress_client",
+        "base_url": "https://www.timeinprogress.com/",
+        "endpoints": ["health","stats"],
+        "active": true,
+        "notification": true
+    },
+    {
+        "name": "TimeInProgress-rockettothesky-API",
+        "slug": "timeinprogress_api",
+        "base_url": "https://www.rockettothesky.com/",
+        "endpoints": ["health","stats"],
+        "active": true,
+        "notification": true
+    },
+    {
+        "name": "LouisRossouw-website",
+        "slug": "louisrossouw_website",
+        "base_url": "https://www.louisrossouw.com/",
+        "endpoints": ["health","stats", "zombie-game-stats"],
+        "active": true,
+        "notification": true
+    },
+    {
+        "name": "QuixVert",
+        "slug": "quixvert",
+        "base_url": "https://www.louisrossouw.com/",
+        "endpoints": ["health","stats"],
+        "active": true,
+        "notification": true
+    }
+]
