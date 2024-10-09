@@ -66,7 +66,6 @@ def something():
             ]
 
         }
-
         # app_utils.save_data(account, data)
 
 
@@ -76,6 +75,9 @@ def run():
 
     while True:
         schedule.run_pending()
+
+        # TODO: After ping, record time of when this bot last pinged
+        # this will be used so my other apps can make sure this pining bot is online.
         sleep(5)
 
 
