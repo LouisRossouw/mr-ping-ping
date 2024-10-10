@@ -1,0 +1,5 @@
+{
+    "process_name": "Mr-ping-ping",
+    "notifications": true,
+    "interval_min": 60 
+}

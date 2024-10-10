@@ -1,24 +1,52 @@
 import os
-import lib.test as utils
 import sys
-import settings
+import requests
 import schedule
 from time import sleep
-import requests
 
-SETTINGS = settings.Settings()
-sys.path.append(SETTINGS.root_dir)
+import lib.utils as utils
+import lib.save_data as save_data
+import lib.notification as notification
+
+root_dir = os.path.dirname(__file__)
+sys.path.append(root_dir)
+
+BotNot = notification.Notification()
 
 
-def pingping(to_ping):
+def run():
+    """  Run. """
+
+    has_started = False
+    schedule.every(0.02).minutes.do(ping_apps)
+
+    while True:
+
+        start_time = utils.start_time()
+        schedule.run_pending()
+        res_time = utils.calculate_request_time(start_time)
+
+        data = {
+            "res_time": res_time,
+            "last_pinged": str(utils.get_dates_new()['date_now_full']),
+            "monitoring": ["TODO", "TODO", "etc.."]  # Maybe il try add this.
+        }
+
+        if has_started:
+            save_data.save_data(None, "mr_ping_ping", data)
+
+        has_started = True
+        sleep(5)
+
+
+def ping_ping(to_ping):
     """ Does a ping and returns response + data. """
-    base_url = to_ping.get('base_url')
 
     start_time = utils.start_time()
 
-    if base_url:
+    if to_ping:
         try:
-            response = requests.get(base_url, timeout=5)
+            response = requests.get(to_ping, timeout=5)
         except requests.RequestException:
             response = False
 
@@ -26,63 +54,69 @@ def pingping(to_ping):
     return response, res_time
 
 
-def something():
-    """ Runs """
+def ping_apps():
+    """ Pings apps and their given endpoints. """
 
-    apps = utils.read_json(os.path.join(SETTINGS.root_dir, 'ping-apps.json'))
+    apps = utils.read_json(os.path.join(root_dir, 'configs/ping-apps.json'))
 
     if utils.is_internet_available():
         for app in apps:
 
-            base_url = app.get('base_app')
-            endpoints = app.get('apps')
+            slug = app.get('slug')
+            notify = app.get('notify')
+            to_ping = app.get('active')
+            base_url = app.get('base_url')
+            endpoints = app.get('endpoints')
 
-            for endpoint in endpoints:
+            if to_ping:
+                endpoints_res = []
 
-                url_to_ping = f"{base_url}{endpoint}"
+                for endpoint in endpoints:
 
-                response, res_time = pingping(url_to_ping)
-                success = response.status_code == 200
+                    url_to_ping = f"{base_url}{endpoint}"
+                    res, res_time = ping_ping(url_to_ping)
+                    code = res.status_code
+                    success = code == 200
 
-                print(f"Checked - {app.get('slug')} | Res: {success} - {response.status_code} | Time: {res_time}")  # nopep8
+                    print_Status(slug, success, code, res_time)
+                    report(app, res) if notify and not success else None
 
+                    data = {
+                        "endpoint": endpoint,
+                        "full_url": url_to_ping,
+                        "res_time": res_time,
+                        "response": {
+                            "code": code,
+                            "success": success,
+                            "data": res.json() if success else None
+                        }}
+
+                endpoints_res.append(data)
+
+                date_time = utils.get_dates_new()['date_now_full']
+                data = {
+                    "date_time": str(date_time),
+                    "pinged": app.get('slug'),
+                    "endpoints_res": endpoints_res
+                }
+                save_data.save_data(slug, "pings", data)
                 sleep(1)
 
-        data = {
-            "timestamp": "",
-            "time_formatted": "",
-            "pinged": app.get('slug'),
-            "endpoints_res": [
-                {
-                    "endpoint": "/health",
-                    "full_url": "https://www.rockettothesky.com/health",
-                    "response": {
-                        "code": 200,
-                        "success": True,
-                        "data": []
-                    }
 
-                },
-            ]
+def report(app, res):
+    """ Sends a telegram message to admin. """
 
-        }
-        # app_utils.save_data(account, data)
+    txt_1 = "👨‍🚀 Mr-Ping-Ping:\n\n"
+    txt_2 = f"❌No Response: {app.get('slug')} : {res.status_code}"
+    BotNot.send_ADMIN_notification(txt_1 + txt_2)
 
 
-def run():
-    """  Run. """
-    schedule.every(0.02).minutes.do(something)
-
-    while True:
-        schedule.run_pending()
-
-        # TODO: After ping, record time of when this bot last pinged
-        # this will be used so my other apps can make sure this pining bot is online.
-        sleep(5)
+def print_Status(name, success, code, res_time):
+    """ Prints response """
+    print(f"Checked - {name} | Res: {success} - {code} | Time: {res_time}")
 
 
 if __name__ == '__main__':
-
     print('Starting')
 
     while True:
