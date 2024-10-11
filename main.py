@@ -13,14 +13,19 @@ sys.path.append(root_dir)
 
 BotNot = notification.Notification()
 
+global settings
+
 
 def run():
     """  Run. """
 
+    global settings
     has_started = False
     schedule.every(0.02).minutes.do(ping_apps)
 
     while True:
+
+        settings = utils.read_json(os.path.join(root_dir, "configs", "main.json"))  # nopep8
 
         start_time = utils.start_time()
         schedule.run_pending()
@@ -28,8 +33,7 @@ def run():
 
         data = {
             "res_time": res_time,
-            "last_pinged": str(utils.get_dates_new()['date_now_full']),
-            "monitoring": ["TODO", "TODO", "etc.."]  # Maybe il try add this.
+            "last_pinged": str(utils.get_dates_new()['date_now_full'])
         }
 
         if has_started:
@@ -68,52 +72,89 @@ def ping_apps():
             base_url = app.get('base_url')
             endpoints = app.get('endpoints')
 
+            is_endpoints = len(endpoints) > 0
+
             if to_ping:
-                endpoints_res = []
+                if is_endpoints:
 
-                for endpoint in endpoints:
+                    endpoints_res = []
+                    for endpoint in endpoints:
 
-                    url_to_ping = f"{base_url}{endpoint}"
+                        url_to_ping = f"{base_url}{endpoint}"
+                        res, res_time = ping_ping(url_to_ping)
+                        code = res.status_code if res else 500
+                        success = code == 200
+
+                        print_Status(slug, success, code, res_time)
+                        report(app, code) if notify and not success else None
+
+                        data = {
+                            "endpoint": endpoint,
+                            "full_url": url_to_ping,
+                            "res_time": res_time,
+                            "response": {
+                                "code": code,
+                                "success": success,
+                                "data": res.json() if success else None
+                            }
+                        }
+
+                        endpoints_res.append(data)
+
+                    date_time = utils.get_dates_new()['date_now_full']
+                    data = {
+                        "date_time": str(date_time),
+                        "pinged": app.get('slug'),
+                        "success": success,
+                        "endpoints_res": endpoints_res
+                    }
+                    save_data.save_data(slug, "pings", data)
+                    sleep(1)
+
+                else:
+                    url_to_ping = f"{base_url}"
                     res, res_time = ping_ping(url_to_ping)
-                    code = res.status_code
+                    code = res.status_code if res else 500
                     success = code == 200
 
                     print_Status(slug, success, code, res_time)
-                    report(app, res) if notify and not success else None
+                    report(app, code) if notify and not success else None
 
                     data = {
-                        "endpoint": endpoint,
+                        "endpoint": None,
                         "full_url": url_to_ping,
                         "res_time": res_time,
                         "response": {
                             "code": code,
                             "success": success,
-                            "data": res.json() if success else None
-                        }}
+                            "data": None
+                        }
+                    }
 
-                endpoints_res.append(data)
+                    date_time = utils.get_dates_new()['date_now_full']
+                    data = {
+                        "date_time": str(date_time),
+                        "pinged": app.get('slug'),
+                        "success": success,
+                        "endpoints_res": data
+                    }
+                    save_data.save_data(slug, "pings", data)
+                    sleep(1)
 
-                date_time = utils.get_dates_new()['date_now_full']
-                data = {
-                    "date_time": str(date_time),
-                    "pinged": app.get('slug'),
-                    "endpoints_res": endpoints_res
-                }
-                save_data.save_data(slug, "pings", data)
-                sleep(1)
 
-
-def report(app, res):
+def report(app, code):
     """ Sends a telegram message to admin. """
 
-    txt_1 = "👨‍🚀 Mr-Ping-Ping:\n\n"
-    txt_2 = f"❌No Response: {app.get('slug')} : {res.status_code}"
-    BotNot.send_ADMIN_notification(txt_1 + txt_2)
+    if settings.get('notifications'):
+        txt_1 = "👨‍🚀 Mr-Ping-Ping:\n\n"
+        txt_2 = f"❌No Response: {app.get('slug')} : {code}"
+        BotNot.send_ADMIN_notification(txt_1 + txt_2)
 
 
 def print_Status(name, success, code, res_time):
     """ Prints response """
-    print(f"Checked - {name} | Res: {success} - {code} | Time: {res_time}")
+    print(
+        f"Mr-Ping-Ping: Checked - {name} | Res: {success} - {code} | Time: {res_time}")
 
 
 if __name__ == '__main__':

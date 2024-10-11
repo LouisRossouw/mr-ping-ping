@@ -3,8 +3,8 @@
         "name": "TimeInProgress-website-client",
         "slug": "timeinprogress_client",
         "base_url": "https://www.timeinprogress.com/",
-        "endpoints": ["health","stats"],
-        "active": false,
+        "endpoints": [],
+        "active": true,
         "notify": true
     },
     {
@@ -19,15 +19,15 @@
         "name": "LouisRossouw-website",
         "slug": "louisrossouw_website",
         "base_url": "https://www.louisrossouw.com/",
-        "endpoints": ["health","stats", "zombie-game-stats"],
-        "active": false,
+        "endpoints": [],
+        "active": true,
         "notify": true
     },
     {
         "name": "QuixVert",
         "slug": "quixvert",
-        "base_url": "https://www.louisrossouw.com/",
-        "endpoints": ["health","stats"],
+        "base_url": "https://www.quixvert.com/",
+        "endpoints": [],
         "active": true,
         "notify": true
     }
