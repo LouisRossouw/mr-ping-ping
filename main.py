@@ -21,7 +21,7 @@ def run():
 
     global settings
     has_started = False
-    schedule.every(0.02).minutes.do(ping_apps)
+    schedule.every(settings.get('interval_min')).minutes.do(ping_apps)
 
     while True:
 
