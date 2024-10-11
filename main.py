@@ -159,6 +159,7 @@ def print_Status(name, success, code, res_time):
 
 if __name__ == '__main__':
     print('Starting')
+    settings = utils.read_json(os.path.join(root_dir, "configs", "main.json"))  # nopep8
 
     while True:
         try:
