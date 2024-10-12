@@ -40,7 +40,7 @@ def run():
             save_data.save_data(None, "mr_ping_ping", data)
 
         has_started = True
-        sleep(5)
+        sleep(120)
 
 
 def ping_ping(to_ping):
