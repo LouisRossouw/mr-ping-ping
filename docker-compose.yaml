@@ -1,0 +1,13 @@
+services:
+  ping-app:
+    image: mr-ping-ping
+    volumes:
+      - ./data:/app/data
+      - ./configs:/app/configs
+      - ./lib:/app/lib
+      - /app/venv
+    restart: unless-stopped
+    # ports:
+    #   - "5000:5000"                     # Map port if needed
+    # environment:
+    #   - ENV_VAR=your_value              # Pass environment variables

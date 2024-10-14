@@ -1,5 +1,6 @@
 {
     "process_name": "Mr-ping-ping",
     "notifications": true,
-    "interval_min": 60 
+    "interval_min": 60 ,
+    "timeout": 10
 }

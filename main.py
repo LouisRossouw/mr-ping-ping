@@ -50,7 +50,7 @@ def ping_ping(to_ping):
 
     if to_ping:
         try:
-            response = requests.get(to_ping, timeout=5)
+            response = requests.get(to_ping, timeout=settings.get('timeout'))
         except requests.RequestException:
             response = False
 
