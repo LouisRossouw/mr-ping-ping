@@ -158,12 +158,29 @@ def print_Status(name, success, code, res_time):
 
 
 if __name__ == '__main__':
-    print('Starting')
+
+    error_count = 0
+
     settings = utils.read_json(os.path.join(root_dir, "configs", "main.json"))  # nopep8
+
+    print('Mr-Ping-Ping: Starting')
+
+    run()
 
     while True:
         try:
             run()
+            error_count = 0
         except Exception as e:
             print(e)
-            sleep(25)
+            sleep(60)
+
+            error_count += 1
+
+            if error_count >= 5:
+                # There is clearly something broken!!
+                txt_1 = "👨‍🚀 Mr-Ping-Ping:\n\n"
+                txt_2 = f"❌Something is wrong with Mr-Ping-Ping! \n\n Waiting for admin input."
+                BotNot.send_ADMIN_notification(txt_1 + txt_2)
+
+                input()
