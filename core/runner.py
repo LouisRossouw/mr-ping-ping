@@ -122,8 +122,8 @@ def run_action(settings, action_slug):
     elapsed_time = calculate_request_time(st)
 
     date_now = datetime.now()
-    manifest_path = os.path.join(
-        settings.data_dir, f"{action_slug.replace('-', '_')}_manifest.json")
+    # manifest_path = os.path.join(
+    #     settings.data_dir, f"{action_slug.replace('-', '_')}_manifest.json")
 
     # Ping Ping
 
@@ -143,12 +143,13 @@ def run_action(settings, action_slug):
     # Manifest historic data
     save_data.save_data(None, "ping_ping", data)
 
+    # TODO; Not using this, possibly remove.
     # Manifest last run
-    write_to_json(manifest_path, {
-        "success": success,
-        ** action,
-        **data,
-    })
+    # write_to_json(manifest_path, {
+    #     "success": success,
+    #     ** action,
+    #     **data,
+    # })
 
 
 def print_Status(name, success, code, res_time):

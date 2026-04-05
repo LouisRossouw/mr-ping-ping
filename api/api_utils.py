@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
-from core.utils import read_json, get_data, go_back_time, go_forward_in_time, maybe_append
+from core.utils import read_json, get_data, go_back_time, go_forward_in_time, maybe_append, filter_range
+from core.database import DatabaseManager
 from fastapi import HTTPException
 
 
@@ -92,6 +93,20 @@ def get_data_for_app(data_dir):
 def get_ping_apps_status(settings, app):
     """ Return the status of all apps or specific within the config. """
 
+    if settings.use_postgresql:
+        db = DatabaseManager(settings)
+        if app:
+            ping = db.get_latest_ping(app)
+            return ping.stats if ping else None
+
+        apps_status = []
+        for action in settings.actions:
+            app_slug = action.get('slug')
+            ping = db.get_latest_ping(app_slug)
+            if ping:
+                apps_status.append(ping.stats)
+        return apps_status
+
     actions = settings.actions
     pings_data_dir = settings.pings_data_dir
 
@@ -123,6 +138,25 @@ def get_ping_apps_status(settings, app):
 
 def get_ping_apps_data(settings, app, range, interval):
     """ Returns the relevant data for a given range and interval """
+
+    if settings.use_postgresql:
+        db = DatabaseManager(settings)
+        data_range = filter_range(range, interval)
+        start_time = data_range['search_from']
+        pings = db.get_pings(app, start_time)
+
+        clean = []
+        no_duplicates_list = []
+        for ping in pings:
+            date_str = str(ping.timestamp)
+            value_data = maybe_append(date_str, range, interval)
+            if value_data not in no_duplicates_list:
+                no_duplicates_list.append(value_data)
+                clean.append({
+                    'date': date_str,
+                    'endpoints_res': ping.stats.get('endpoints_res')
+                })
+        return clean
 
     pings_data_dir = settings.pings_data_dir
     data_dir = os.path.join(pings_data_dir, app)
@@ -174,6 +208,17 @@ def get_ping_apps_data(settings, app, range, interval):
 
 def status_ping_ping(settings, interval, range):
     """ Returns the status of mr ping ping """
+
+    if settings.use_postgresql:
+        db = DatabaseManager(settings)
+        ping = db.get_latest_ping('ping_ping')
+        if not ping:
+            return None
+        return {
+            'date': str(ping.timestamp),
+            'res_time': ping.stats.get('res_time'),
+            'last_pinged': ping.stats.get('last_pinged'),
+        }
 
     mrpingping_data_dir = os.path.join(settings.data_dir, 'ping_ping')
     data = get_data(range, interval, mrpingping_data_dir)
