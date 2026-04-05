@@ -1,8 +1,8 @@
-import os
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
@@ -12,16 +12,16 @@ class App(Base):
     __tablename__ = 'apps'
     id = Column(Integer, primary_key=True)
     slug = Column(String, unique=True, nullable=False)
-    name = Column(String)
     pings = relationship("Ping", back_populates="app")
+    name = Column(String)
 
 class Ping(Base):
     __tablename__ = 'pings'
     id = Column(Integer, primary_key=True)
     app_id = Column(Integer, ForeignKey('apps.id'))
     timestamp = Column(DateTime, default=datetime.now, index=True)
-    stats = Column(JSON)
     app = relationship("App", back_populates="pings")
+    stats = Column(JSON)
 
 class DatabaseManager:
     def __init__(self, settings):
