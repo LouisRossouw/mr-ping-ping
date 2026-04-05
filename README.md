@@ -34,6 +34,15 @@ json configs are used to define the service, the http urls and it's endpoints to
       "notifications": true, // enable notifications
       "notify_bot": "null-face", // for telegram api service
       "tele_jam_api_baseurl": "http://[IP_ADDRESS]" // for telegram api service
+
+      "use_postgresql": true, // Optional, uses json files in data dir if false
+      "postgresql": {
+            "host": "0.0.0.0",
+            "port": 5432,
+            "user": "",
+            "password": "",
+            "database": ""
+      }
 }
 ```
 
