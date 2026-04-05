@@ -1,9 +1,9 @@
-
 import os
 import sys
 from time import sleep
-
 from core import utils
+from core.settings import Settings
+from core.database import DatabaseManager
 
 # Get root dir (one level up from core)
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +11,15 @@ root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def save_data(name, dir, stats):
     """ saves data. """
+
+    settings = Settings()
+    
+    if settings.use_postgresql:
+        db = DatabaseManager(settings)
+        # Use name as slug if provided, otherwise dir
+        slug = name if name else dir
+        db.save_ping(slug, stats)
+        return # Use Postgres instead of JSON
 
     current_date = utils.get_dates_new()
 

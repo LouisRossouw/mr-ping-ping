@@ -30,6 +30,8 @@ class Settings():
         self.notify_bot = self.config.get("notify_bot")
         self.notifications = self.config.get("notifications")
         self.tele_jam_api_baseurl = self.config.get("tele_jam_api_baseurl")
+        self.use_postgresql = self.config.get("use_postgresql", False)
+        self.postgresql = self.config.get("postgresql", {})
 
     def get_logs(self, lines=20):
         if not os.path.exists(self.log_file):
@@ -74,3 +76,5 @@ class Settings():
         self.notify_bot = self.config.get("notify_bot")
         self.notifications = self.config.get("notifications")
         self.tele_jam_api_baseurl = self.config.get("tele_jam_api_baseurl")
+        self.use_postgresql = self.config.get("use_postgresql", False)
+        self.postgresql = self.config.get("postgresql", {})
