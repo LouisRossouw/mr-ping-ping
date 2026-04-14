@@ -65,6 +65,14 @@ def run_action(settings, action_slug):
                 report(url_to_ping, action, code,
                        settings) if notify and not success else None
 
+                response_data = None
+
+                if success:
+                    try:
+                        response_data = res.json()
+                    except ValueError:
+                        response_data = res.text
+
                 data = {
                     "endpoint": endpoint,
                     "full_url": url_to_ping,
@@ -72,7 +80,7 @@ def run_action(settings, action_slug):
                     "response": {
                         "code": code,
                         "success": success,
-                        "data": res.json() if success else None
+                        "data": response_data if success else None
                     }
                 }
 
