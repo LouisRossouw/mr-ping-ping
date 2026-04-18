@@ -51,10 +51,17 @@ ping-apps.json
 ```
 [
     {
-        "name": "TimeInProgress-website-client",
-        "slug": "timeinprogress_client", // * Must match schedules.json action key
+        "name": "some-name-website-client",
+        "slug": "some_name_client", // * Must match schedules.json action key
         "base_url": "https://www.timeinprogress.com/",
         "endpoints": ["api/health","api/stats"],
+
+        // Optional
+        "headers": {
+            "Authorization": "Bearer YOUR_TOKEN_HERE",
+            "X-Api-Key": "YOUR_API_KEY_HERE"
+        },
+
         "active": true,
         "notify": true
     },
@@ -66,8 +73,8 @@ schedules.json
 ```
 [
     {
-        "name": "timeinprogress-website-client",
-        "action": "timeinprogress_client",  // * Must match ping-apps.json slug key, i should rename this to slug.
+        "name": ""some_name-website-client",
+        "action": ""some_name_client",  // * Must match ping-apps.json slug key, i should rename this to slug.
         "trigger": "interval",
         "hours": 1
     },

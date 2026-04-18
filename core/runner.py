@@ -45,6 +45,7 @@ def run_action(settings, action_slug):
     to_ping = action.get('active')
     base_url = action.get('base_url')
     endpoints = action.get('endpoints')
+    headers = action.get('headers', {})
 
     is_endpoints = len(endpoints) > 0
     if to_ping:
@@ -57,7 +58,7 @@ def run_action(settings, action_slug):
             for endpoint in endpoints:
 
                 url_to_ping = f"{base_url}{endpoint}"
-                res, res_time = ping_ping(url_to_ping)
+                res, res_time = ping_ping(url_to_ping, headers=headers)
                 code = res.status_code if res else 500
                 success = code == 200
 
@@ -98,7 +99,7 @@ def run_action(settings, action_slug):
 
         else:
             url_to_ping = f"{base_url}"
-            res, res_time = ping_ping(url_to_ping)
+            res, res_time = ping_ping(url_to_ping, headers=headers)
             code = res.status_code if res else 500
             success = code == 200
 
@@ -178,14 +179,14 @@ def report(url_to_ping, action, code, settings):
         )])
 
 
-def ping_ping(to_ping):
+def ping_ping(to_ping, headers=None):
     """ Does a ping and returns response + data. """
 
     st = start_time()
 
     if to_ping:
         try:
-            response = requests.get(to_ping, timeout=15)
+            response = requests.get(to_ping, timeout=15, headers=headers or {})
         except requests.RequestException:
             response = False
 
